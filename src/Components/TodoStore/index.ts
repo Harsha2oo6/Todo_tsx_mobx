@@ -4,28 +4,36 @@ import {
   saveTodosToStorage,
 } from "../../Services/Todos/getSavedTodos";
 
-export type Todo = {
+export class Todo {
   id: number;
   todo: string;
   isDone: boolean;
-};
 
+  constructor(id: number, todo: string, isDone: boolean = false) {
+    makeAutoObservable(this);
+    this.id = id;
+    this.todo = todo;
+    this.isDone = isDone;
+  }
+
+  toggle() {
+    this.isDone = !this.isDone;
+  }
+}
 class TodoStore {
   todosList: Todo[];
 
   constructor() {
     makeAutoObservable(this);
-    this.todosList = loadTodosFromStorage();
+    this.todosList = loadTodosFromStorage().map(
+      (t) => new Todo(t.id, t.todo, t.isDone)
+    );
     autorun(() => {
       saveTodosToStorage(this.todosList);
     });
   }
   addTodo(value: string) {
-    const newTodo: Todo = {
-      id: Date.now(),
-      todo: value,
-      isDone: false,
-    };
+    const newTodo = new Todo(Date.now(), value);
     this.todosList.push(newTodo);
   }
   deleteTodo(id: number) {
@@ -35,7 +43,7 @@ class TodoStore {
   toggleDone(id: number) {
     const todo = this.todosList.find((item) => item.id === id);
     if (todo) {
-      todo.isDone = !todo.isDone;
+      todo.toggle();
     }
   }
 }
