@@ -20,8 +20,10 @@ export class Todo {
     this.isDone = !this.isDone;
   }
 }
+type Category = 'all'|'active'|'completed'
 class TodoStore {
   todosList: Todo[];
+  category:Category ='all';
 
   constructor() {
     makeAutoObservable(this);
@@ -44,6 +46,20 @@ class TodoStore {
     const todo = this.todosList.find((item) => item.id === id);
     if (todo) {
       todo.toggle();
+    }
+  }
+  setCategory(requiredCategory:Category){
+    this.category=requiredCategory
+  }
+  getFillteredTodos(){
+    switch(this.category){
+      case('active'):{
+        return this.todosList.filter((todo)=>todo.isDone===false)
+      }
+      case('completed'):{
+        return this.todosList.filter((todo)=>todo.isDone===true)
+      }
+      default:return this.todosList
     }
   }
 }
